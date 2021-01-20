@@ -1,35 +1,27 @@
-#Node class type
-class Node
-  attr_accessor :data,:left,:right
-  def initialize(data)
-    @data = data
-    @left = NIL
-    @right = NIL
-  end
-  def add_right_child(node)
-    @right = node
-  end
-  def add_left_child(node)
-    @left = node
-  end
-end
-
+require_relative 'Tree.rb'
+require_relative 'Node.rb'
+include Tree_methods
 #container for each BST
 class BST
-  def initialize
-    @root = NIL #root of the tree
+  def initialize(*args)
+    @root = nil #root of the tree
     @buffer_arr = Array.new #array used to store temporary data in various operations
-    @filename = 'bst_data.txt' #default external file to store BST data
+    if args.length>0
+      @filename = args[0]
+    else
+      @filename = 'bst_data.txt' #default external file to store BST data
+    end
+
   end
 
   private
 
   #method for adding a single node
   def add_one_node(root,given_node)
-    if root == NIL
+    if root == nil
       @root = given_node
     else
-      while (root.data>given_node.data and root.left!=NIL) or (root.data<given_node.data and root.right!=NIL)
+      while (root.data>given_node.data and root.left!=nil) or (root.data<given_node.data and root.right!=nil)
         if root.data>given_node.data
           root = root.left
         else
@@ -58,7 +50,7 @@ class BST
             elements[i] = elements[i].to_i
           else
             puts "enter the data again (press \"quit\" for quit)"
-            elements = gets.chomp
+            elements = STDIN.gets.chomp
             if elements=="quit"
               return
             else
@@ -81,10 +73,10 @@ class BST
   #method to print the largest element of BST
   def print_largest_element
     curr_node = @root
-    if curr_node == NIL
+    if curr_node == nil
       puts "There is no data"
     else
-      while curr_node.right != NIL
+      while curr_node.right != nil
         curr_node = curr_node.right
       end
       puts curr_node.data
@@ -94,88 +86,24 @@ class BST
   #method to print the smallest element of BST
   def print_smallest_element
     curr_node = @root
-    if curr_node == NIL
+    if curr_node == nil
       puts "There is no data"
     else
-      while curr_node.left != NIL
+      while curr_node.left != nil
         curr_node = curr_node.left
       end
       puts curr_node.data
     end
   end
 
-  #method to print all the data in inorder way
-  def inorder_traversal(root=@root)
-    if root.left!=NIL
-      inorder_traversal(root.left)
-    end
-    print root.data
-    print " "
-    if root.right!=NIL
-      inorder_traversal(root.right)
-    end
-    if root == @root
-      print "\n"
-    end
-  end
-
-  #method to print all the data in preorder way
-  def preorder_traversal(root=@root)
-    print root.data
-    print " "
-    if root.left!=NIL
-      preorder_traversal(root.left)
-    end
-    if root.right!=NIL
-      preorder_traversal(root.right)
-    end
-    if root == @root
-      print "\n"
-    end
-  end
-
-  #method to print all the data in postorder way
-  def postorder_traversal(root=@root)
-    if root.left!=NIL
-      postorder_traversal(root.left)
-    end
-    if root.right!=NIL
-      postorder_traversal(root.right)
-    end
-    print root.data
-    print " "
-    if root == @root
-      print "\n"
-    end
-  end
-
-  #method to print all the data in level order way
-  def levelorder_traversal(root=@root)
-    buffer_arr = @buffer_arr
-    buffer_arr.append(root)
-    curr_ind = 0
-    while curr_ind<buffer_arr.length
-      curr_node = buffer_arr[curr_ind]
-      print "#{curr_node.data} "
-      if curr_node.left != NIL
-        buffer_arr.append(curr_node.left)
-      end
-      if curr_node.right != NIL
-        buffer_arr.append(curr_node.right)
-      end
-      curr_ind+=1
-    end
-    @buffer_arr.clear
-  end
-
   #method for searching an element, it also returns the corresponding node
   def search(element)
     root = @root
-    if root == NIL
+    if root == nil
       puts "no element in the BST"
-      return NIL
+      return nil
     else
-      while (root.data>element and root.left!=NIL) or (root.data<element and root.right!=NIL)
+      while (root.data>element and root.left!=nil) or (root.data<element and root.right!=nil)
         if root.data>element
           root = root.left
         else
@@ -187,7 +115,7 @@ class BST
         return root
       else
         puts "Data is not present in BST"
-        return NIL
+        return nil
       end
     end
   end
@@ -195,13 +123,13 @@ class BST
   #method to remove an element if it is present in BST
   def remove(element)
     root = @root
-    if root == NIL
+    if root == nil
       puts "no element in the BST"
     elsif root.data == element
-      if root.left != NIL
+      if root.left != nil
         @root = root.left
         curr_node = root.left
-        while curr_node.right!=NIL
+        while curr_node.right!=nil
           curr_node = curr_node.right
         end
         curr_node.right = root.right
@@ -210,15 +138,15 @@ class BST
       end
       puts "Node deleted"
     else
-      while (root.data>element and root.left!=NIL) or (root.data<element and root.right!=NIL)
+      while (root.data>element and root.left!=nil) or (root.data<element and root.right!=nil)
         if root.data>element
           #when data to be removed is left child of current node
           if root.left.data==element
             temp_root = root.left
-            if temp_root.left != NIL
+            if temp_root.left != nil
               root.left = temp_root.left
               curr_node = temp_root.left
-              while curr_node.right!=NIL
+              while curr_node.right!=nil
                 curr_node = curr_node.right
               end
               curr_node.right = temp_root.right
@@ -234,10 +162,10 @@ class BST
           #when data to be removed is right child of current node
           if root.right.data==element
             temp_root = root.right
-            if temp_root.left != NIL
+            if temp_root.left != nil
               root.right = temp_root.left
               curr_node = temp_root.left
-              while curr_node.right!=NIL
+              while curr_node.right!=nil
                 curr_node = curr_node.right
               end
               curr_node.right = temp_root.right
@@ -258,13 +186,13 @@ class BST
   #method to print all path from root to leaves
   def print_all_path(root=@root)
     @buffer_arr.append(root)
-    if root.left!=NIL
+    if root.left!=nil
       print_all_path(root.left)
     end
-    if root.right!=NIL
+    if root.right!=nil
       print_all_path(root.right)
     end
-    if root.left==NIL and root.right==NIL
+    if root.left==nil and root.right==nil
       for each_element in @buffer_arr
         print "#{each_element.data} "
       end
@@ -277,10 +205,10 @@ class BST
   def preorder_traversal_to_file(root=@root,f)
     f.write root.data
     f.write ","
-    if root.left!=NIL
+    if root.left!=nil
       preorder_traversal_to_file(root.left,f)
     end
-    if root.right!=NIL
+    if root.right!=nil
       preorder_traversal_to_file(root.right,f)
     end
   end
@@ -292,136 +220,144 @@ class BST
 
   public
 
-  #method to load data from external file
-  def load_BST_from_file(filename=@filename)
-    begin
-      f = File.open(filename,'r')
-      add_elements(f.read)
-    rescue => r
-      puts r
+  def save_helper(*args)
+    if args[0]==nil
+      puts "Enter filename to save"
+      inp = STDIN.gets.chomp
+    else
+      inp = args[0]
+      save_to_file(inp)
     end
   end
 
-  #method to perform various operations on BST
-  def perform_operations
-    puts "\nSelect any one of the option"
-    puts "1. Add elements to tree"
-    puts "2. Print largest element"
-    puts "3. Print smallest element"
-    puts "4. Print inorder traversal"
-    puts "5. Print preorder traversal"
-    puts "6. Print postorder traversal"
-    puts "7. Print level order traversal"
-    puts "8. Search an element"
-    puts "9. Remove an element"
-    puts "10. Print all Paths"
-    puts "11. Quit"
-    selected_option = gets.chomp.to_i
-    case selected_option
-    when 1
-      puts "enter comma separated elements"
-      elements = gets.chomp
-      add_elements(elements)
-      perform_operations
-    when 2
-      puts "largest element"
-      print_largest_element
-      perform_operations
-    when 3
-      puts "smallest element"
-      print_smallest_element
-      perform_operations
-    when 4
-      puts "inorder traversal"
-      inorder_traversal
-      perform_operations
-    when 5
-      puts "preorder traversal"
-      preorder_traversal
-      perform_operations
-    when 6
-      puts "postorder traversal"
-      postorder_traversal
-      perform_operations
-    when 7
-      puts "levelorder traversal"
-      levelorder_traversal
-      perform_operations
-    when 8
-      puts "enter element to be search. Press \"quit\" for quitting"
-      correct_input = false
-      unless  correct_input
-        begin
-          element = gets.chomp
-          if element == "quit"
-            perform_operations
-            return
-          elsif element.to_i.to_s == element
-            element = element.to_i
-            search(element)
-            perform_operations
-          else
-            puts "enter only integer data (\"quit\" for quitting)"
-            correct_input = false
-          end
-          correct_input = true
-        rescue => r
-          puts r
-        end
-      end
-    when 9
-      puts "enter element to be removed. Press \"quit\" for quitting"
-      correct_input = false
-      unless  correct_input
-        begin
-          element = gets.chomp
-          if element == "quit"
-            perform_operations
-            return
-          elsif element.to_i.to_s == element
-            element = element.to_i
-            remove(element)
-            perform_operations
-          else
-            puts "enter only integer data (\"quit\" for quitting)"
-            correct_input = false
-          end
-          correct_input = true
-        rescue => r
-          puts r
-        end
-      end
-    when 10
-      puts "printing all paths"
-      print_all_path
-      perform_operations
-    when 11
-      save_to_file
-      return
+  #method to load data from external file
+  def load_BST_from_file_helper(*args)
+    if args[0]==nil
+      puts "Enter filename"
+      filename = STDIN.gets.chomp
     else
-      puts "enter option correctly"
+      filename = args[0]
+      begin
+        f = File.open(filename,'r')
+        add_elements(f.read)
+      rescue => r
+        puts r
+      end
     end
   end
+
+  def add_elements_helper
+    puts "enter comma separated elements"
+    elements = STDIN.gets.chomp
+    add_elements(elements)
+  end
+
+  def largest_element_helper
+    puts "largest element"
+    print_largest_element
+  end
+
+  def smallest_element_helper
+    puts "smallest element"
+    print_smallest_element
+  end
+
+  def preorder_traversal_helper
+    puts "Pre order Traversal"
+    preorder_traversal(@root)
+    puts "\n"
+  end
+  def inorder_traversal_helper
+    puts "Inorder Traversal"
+    inorder_traversal(@root)
+    puts "\n"
+  end
+
+  def postorder_traversal_helper
+    puts "Post order Traversal"
+    postorder_traversal(@root)
+    puts "\n"
+  end
+
+  def levelorder_traversal_helper
+    puts "lever order traversal"
+    levelorder_traversal
+  end
+
+  def search_helper
+    puts "enter element to be search. Press \"quit\" for quitting"
+    correct_input = false
+    unless  correct_input
+      begin
+        element = STDIN.gets.chomp
+        if element == "quit"
+          correct_input = true
+        elsif element.to_i.to_s == element
+          element = element.to_i
+          search(element)
+          correct_input = true
+        else
+          puts "enter only integer data (\"quit\" for quitting)"
+          correct_input = false
+        end
+      rescue => r
+        puts r
+      end
+    end
+  end
+
+  def remove_helper
+    puts "enter element to be removed. Press \"quit\" for quitting"
+    correct_input = false
+    unless  correct_input
+      begin
+        element = STDIN.gets.chomp
+        if element == "quit"
+          perform_operations
+          correct_input = true
+        elsif element.to_i.to_s == element
+          element = element.to_i
+          remove(element)
+          correct_input = true
+        else
+          puts "enter only integer data (\"quit\" for quitting)"
+          correct_input = false
+        end
+      rescue => r
+        puts r
+      end
+    end
+  end
+
+  def print_path_helper
+    puts "All the paths are"
+    print_all_path
+  end
+
 end
 
 #creating an instance of BST class
-new_bs = BST.new
-
-while true
-  puts "HOME PAGE"
-  puts "Enter the corresponding option"
-  puts "1. Load data from external file"
-  puts "2. perform operations on BST"
-  puts "3. Quit"
-  input = gets.chomp
-  case input
-  when "1"
-    new_bs.load_BST_from_file
-  when "2"
-    new_bs.perform_operations
-  when "3"
-    break
-  else
-    puts "enter correct options"
-  end
-end
+# if ARGV.length>0
+#   new_bs = BST.new(ARGV[0])
+# else
+#   new_bs = BST.new
+# end
+#
+# while true
+#   puts "HOME PAGE"
+#   puts "Enter the corresponding option"
+#   puts "1. Load data from external file"
+#   puts "2. perform operations on BST"
+#   puts "3. Quit"
+#   input = STDIN.gets.chomp
+#   case input
+#   when "1"
+#     new_bs.load_BST_from_file
+#   when "2"
+#     new_bs.perform_operations
+#   when "3"
+#     break
+#   else
+#     puts "enter correct options"
+#   end
+# end
