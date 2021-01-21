@@ -2,16 +2,47 @@ require_relative 'Tree.rb'
 require_relative 'Node.rb'
 include Tree_methods
 #container for each BST
+
+BST_OPERATION_HASH = Hash.new
+BST_CATEGORY_HASH = Hash.new
+
+def add_category(category_index,category_message)
+  BST_OPERATION_HASH[category_index] = Hash.new
+  BST_CATEGORY_HASH[category_index] = category_message
+  category_index
+end
+
+def add_operation(operation_index,message,category_index)
+  BST_OPERATION_HASH[category_index][operation_index]=message
+  operation_index
+end
+
+module BST_OperationCategory
+  PRINT = add_category(1, "Print")
+  MODIFY = add_category(2, "Modify")
+  SEARCH = add_category(3, "Search")
+  LOAD = add_category(4,"Load Data")
+end
+
+module BST_Operations
+  PRINT_PATHS = add_operation(1, "Print all the paths from root to leaves",BST_OperationCategory::PRINT)
+  SMALLEST = add_operation(2, "Print the smallest element", BST_OperationCategory::PRINT)
+  LARGEST = add_operation(3, "Print the largest element", BST_OperationCategory::PRINT)
+  PRE_ORDER = add_operation(4, "Print the pre order traversal", BST_OperationCategory::PRINT)
+  POST_ORDER = add_operation(5, "Print the post order traversal", BST_OperationCategory::PRINT)
+  IN_ORDER = add_operation(6, "Print the in order traversal", BST_OperationCategory::PRINT)
+  LEVEL_ORDER = add_operation(7, "Print the level order traversal", BST_OperationCategory::PRINT)
+  SEARCH = add_operation(1, "Search an element by value", BST_OperationCategory::SEARCH)
+  ADD_ELEMENTS = add_operation(1, "Add elements to the tree (comma seperated)", BST_OperationCategory::MODIFY)
+  DELETE = add_operation(2, "Delete an element by value", BST_OperationCategory::MODIFY)
+  LOAD_DATA = add_operation(1,"Load data from external file",BST_OperationCategory::LOAD)
+end
+
 class BST
-  def initialize(*args)
+  def initialize(args)
     @root = nil #root of the tree
     @buffer_arr = Array.new #array used to store temporary data in various operations
-    if args.length>0
-      @filename = args[0]
-    else
-      @filename = 'bst_data.txt' #default external file to store BST data
-    end
-
+    @filename = args
   end
 
   private
@@ -51,6 +82,7 @@ class BST
           else
             puts "enter the data again (press \"quit\" for quit)"
             elements = STDIN.gets.chomp
+            system("clear")
             if elements=="quit"
               return
             else
@@ -220,23 +252,25 @@ class BST
 
   public
 
-  def save_helper(*args)
-    if args[0]==nil
+  def save_helper
+    if @filename==nil
       puts "Enter filename to save"
       inp = STDIN.gets.chomp
+      system("clear")
     else
-      inp = args[0]
+      inp = @filename
       save_to_file(inp)
     end
   end
 
   #method to load data from external file
-  def load_BST_from_file_helper(*args)
-    if args[0]==nil
+  def load_BST_from_file_helper
+    if @filename==nil
       puts "Enter filename"
       filename = STDIN.gets.chomp
+      system("clear")
     else
-      filename = args[0]
+      filename = @filename
       begin
         f = File.open(filename,'r')
         add_elements(f.read)
@@ -249,6 +283,7 @@ class BST
   def add_elements_helper
     puts "enter comma separated elements"
     elements = STDIN.gets.chomp
+    system("clear")
     add_elements(elements)
   end
 
@@ -290,6 +325,7 @@ class BST
     unless  correct_input
       begin
         element = STDIN.gets.chomp
+        system("clear")
         if element == "quit"
           correct_input = true
         elsif element.to_i.to_s == element
@@ -312,8 +348,8 @@ class BST
     unless  correct_input
       begin
         element = STDIN.gets.chomp
+        system("clear")
         if element == "quit"
-          perform_operations
           correct_input = true
         elsif element.to_i.to_s == element
           element = element.to_i
@@ -334,6 +370,106 @@ class BST
     print_all_path
   end
 
+  def perform_operations(category_index)
+    quit_pos=1
+    for each_operation in BST_OPERATION_HASH[category_index].keys
+      puts "#{each_operation} #{BST_OPERATION_HASH[category_index][each_operation]}"
+      quit_pos+=1
+    end
+    puts "#{quit_pos} For quitting"
+    inp = STDIN.gets.chomp
+    system("clear")
+    case category_index
+    when BST_OperationCategory::PRINT
+      case inp.to_i
+      when BST_Operations::PRINT_PATHS then
+        NEW_BST.print_path_helper
+        ask_for_category
+      when BST_Operations::IN_ORDER then
+        NEW_BST.inorder_traversal_helper
+        ask_for_category
+      when BST_Operations::LEVEL_ORDER then
+        NEW_BST.levelorder_traversal_helper
+        ask_for_category
+      when BST_Operations::PRE_ORDER then
+        NEW_BST.preorder_traversal_helper
+        ask_for_category
+      when BST_Operations::POST_ORDER then
+        NEW_BST.postorder_traversal_helper
+        ask_for_category
+      when BST_Operations::LARGEST then
+        NEW_BST.largest_element_helper
+        ask_for_category
+      when BST_Operations::SMALLEST then
+        NEW_BST.smallest_element_helper
+        ask_for_category
+      when quit_pos
+        ask_for_category
+      else
+        puts "Please enter valid input"
+        perform_operations(category_index)
+      end
+    when BST_OperationCategory::MODIFY
+      case inp.to_i
+      when BST_Operations::ADD_ELEMENTS then
+        NEW_BST.add_elements_helper
+        ask_for_category
+      when BST_Operations::DELETE then
+        NEW_BST.remove_helper
+        ask_for_category
+      when quit_pos
+        ask_for_category
+      else
+        puts "Please enter valid input"
+        perform_operations(category_index)
+      end
+    when BST_OperationCategory::SEARCH
+      case inp.to_i
+      when BST_Operations::SEARCH then
+        NEW_BST.search_helper
+        ask_for_category
+      when quit_pos
+        ask_for_category
+      else
+        puts "Please enter valid input"
+        perform_operations(category_index)
+      end
+    when BST_OperationCategory::LOAD
+      case inp.to_i
+      when BST_Operations::LOAD_DATA then
+        NEW_BST.load_BST_from_file_helper
+        ask_for_category
+      when quit_pos
+        ask_for_category
+      else
+        puts "Please enter valid input"
+        perform_operations(category_index)
+      end
+    end
+  end
+
+  def ask_for_category
+    quit_pos=1
+    for each_category in BST_CATEGORY_HASH.keys
+      puts "#{each_category} #{BST_CATEGORY_HASH[each_category]}"
+      quit_pos+=1
+    end
+    puts "#{quit_pos} For quitting"
+    inp = STDIN.gets.chomp
+    system("clear")
+    case inp.to_i
+    when BST_OperationCategory::PRINT then perform_operations(BST_OperationCategory::PRINT)
+    when BST_OperationCategory::SEARCH then perform_operations(BST_OperationCategory::SEARCH)
+    when BST_OperationCategory::MODIFY then perform_operations(BST_OperationCategory::MODIFY)
+    when BST_OperationCategory::LOAD then perform_operations(BST_OperationCategory::LOAD)
+    when quit_pos
+      save_helper
+      return
+    else
+      puts "enter valid option"
+      ask_for_category
+    end
+  end
 end
 
 #creating an instance of BST class
